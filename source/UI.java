@@ -319,17 +319,19 @@ public class UI implements ActionListener {
         flashMain.add(bottomPanel, BorderLayout.SOUTH);
 
         // textarea
-        // flashText.setEditable(false);
+        flashText.setEditable(false);
         flashText.setLineWrap(true);
-        // flashText.setBackground(Color.LIGHT_GRAY);
-        flashText.setBounds(150, 100, 400, 200);
-        flashText.setFont(new Font(currentFileName, 0, 0));
+        flashText.setBackground(Color.LIGHT_GRAY);
+        // flashText.setBounds(150, 100, 400, 200);
+        flashText.setFont(new Font("Courier New", 0, 40));
+        flashText.setCaretColor(Color.LIGHT_GRAY); // hides the cursor
+        flashText.setText("ummm hi its moogie");
 
         // buttons
 
         // layout and packing
-        // centerPanel.setLayout(centerLayout);
-        centerPanel.setLayout(null);
+        centerPanel.setLayout(centerLayout);
+        // centerPanel.setLayout(null);
         bottomPanel.setLayout(bottomLayout);
 
         centerPanel.add(flashText);
@@ -339,10 +341,9 @@ public class UI implements ActionListener {
         bottomPanel.add(nextButton);
 
         // center layout
-        // centerLayout.putConstraint(SpringLayout.WEST, flashText, 5,
-        // SpringLayout.WEST, centerPanel);
-        // centerLayout.putConstraint(SpringLayout.NORTH, flashText, 5,
-        // SpringLayout.NORTH, centerPanel);
+        centerLayout.putConstraint(SpringLayout.WEST, flashText, 150, SpringLayout.WEST, centerPanel);
+        centerLayout.putConstraint(SpringLayout.EAST, flashText, -150, SpringLayout.EAST, centerPanel);
+        centerLayout.putConstraint(SpringLayout.NORTH, flashText, 100, SpringLayout.NORTH, centerPanel);
 
         // bottom layout
         bottomLayout.putConstraint(SpringLayout.WEST, previousButton, 330, SpringLayout.WEST, bottomPanel);

@@ -21,6 +21,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
+import java.util.ArrayList;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -273,109 +274,17 @@ public class UI implements ActionListener {
         }
     }
 
-    public void flashcardsUI() {
-        // hide main program
-        mainFrame.setVisible(false);
-
-        // initialize UI
-        JFrame flashMain = new JFrame("Flashcards - " + currentFileName + ".set");
-
-        JPanel topPanel = new JPanel();
-        JPanel leftPanel = new JPanel();
-        JPanel centerPanel = new JPanel();
-        JPanel rightPanel = new JPanel();
-        JPanel bottomPanel = new JPanel();
-
-        JTextArea flashText = new JTextArea();
-        JButton nextButton = new JButton("  >  ");
-        JButton flipButton = new JButton("Flip Card");
-        JButton previousButton = new JButton("  <  ");
-
-        SpringLayout centerLayout = new SpringLayout();
-        SpringLayout bottomLayout = new SpringLayout();
-
-        // main flashcard frame
-        // flashMain.setSize(900, 600);
-        flashMain.setResizable(false);
-
-        // panels: all five needed to make it look like a flashcard and not just a
-        // random label
-        // topPanel.setBackground(Color.red);
-        // leftPanel.setBackground(Color.blue);
-        centerPanel.setBackground(Color.lightGray);
-        // rightPanel.setBackground(Color.yellow);
-        // bottomPanel.setBackground(Color.magenta);
-
-        topPanel.setPreferredSize(new Dimension(100, 100));
-        leftPanel.setPreferredSize(new Dimension(100, 100));
-        centerPanel.setPreferredSize(new Dimension(100, 100));
-        rightPanel.setPreferredSize(new Dimension(100, 100));
-        bottomPanel.setPreferredSize(new Dimension(100, 100));
-
-        flashMain.add(topPanel, BorderLayout.NORTH);
-        flashMain.add(leftPanel, BorderLayout.WEST);
-        flashMain.add(centerPanel, BorderLayout.CENTER);
-        flashMain.add(rightPanel, BorderLayout.EAST);
-        flashMain.add(bottomPanel, BorderLayout.SOUTH);
-
-        // textarea
-        flashText.setEditable(false);
-        flashText.setLineWrap(true);
-        flashText.setBackground(Color.LIGHT_GRAY);
-        // flashText.setBounds(150, 100, 400, 200);
-        flashText.setFont(new Font("Courier New", 0, 40));
-        flashText.setCaretColor(Color.LIGHT_GRAY); // hides the cursor
-        flashText.setText("ummm hi its moogie");
-
-        // buttons
-
-        // layout and packing
-        centerPanel.setLayout(centerLayout);
-        // centerPanel.setLayout(null);
-        bottomPanel.setLayout(bottomLayout);
-
-        centerPanel.add(flashText);
-
-        bottomPanel.add(previousButton);
-        bottomPanel.add(flipButton);
-        bottomPanel.add(nextButton);
-
-        // center layout
-        centerLayout.putConstraint(SpringLayout.WEST, flashText, 150, SpringLayout.WEST, centerPanel);
-        centerLayout.putConstraint(SpringLayout.EAST, flashText, -150, SpringLayout.EAST, centerPanel);
-        centerLayout.putConstraint(SpringLayout.NORTH, flashText, 100, SpringLayout.NORTH, centerPanel);
-
-        // bottom layout
-        bottomLayout.putConstraint(SpringLayout.WEST, previousButton, 330, SpringLayout.WEST, bottomPanel);
-        bottomLayout.putConstraint(SpringLayout.NORTH, previousButton, 5, SpringLayout.NORTH, bottomPanel);
-
-        bottomLayout.putConstraint(SpringLayout.WEST, flipButton, 20, SpringLayout.EAST, previousButton);
-        bottomLayout.putConstraint(SpringLayout.NORTH, flipButton, 5, SpringLayout.NORTH, previousButton);
-
-        bottomLayout.putConstraint(SpringLayout.WEST, nextButton, 20, SpringLayout.EAST, flipButton);
-        bottomLayout.putConstraint(SpringLayout.NORTH, nextButton, 0, SpringLayout.NORTH, previousButton);
-
-        // set visible
-
-        flashMain.pack();
-        flashMain.setSize(new Dimension(900, 600));
-        flashMain.setVisible(true);
-
-        // when closed, show main program
-        flashMain.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                mainFrame.setVisible(true);
-            }
-        });
+    public void openFlashcards() {
+        Flashcards flashSesh = new Flashcards(currentSet, mainFrame, currentFileName);
+        flashSesh.runMain();
     }
 
-    public void learnUI() {
-
+    public void openLearn() {
+        System.out.println("adsfle");
     }
 
-    public void writeUI() {
-
+    public void openWrite() {
+        System.out.println("ummms");
     }
 
     public void runMain() {
@@ -436,9 +345,9 @@ public class UI implements ActionListener {
         moduleMenu.add(learnItem);
         moduleMenu.add(writeItem);
 
-        flashcardsItem.addActionListener(e -> flashcardsUI());
-        learnItem.addActionListener(e -> learnUI());
-        writeItem.addActionListener(e -> writeUI());
+        flashcardsItem.addActionListener(e -> openFlashcards());
+        learnItem.addActionListener(e -> openLearn());
+        writeItem.addActionListener(e -> openWrite());
 
         // file keyboard shortcuts
         newFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));

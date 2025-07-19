@@ -5,6 +5,9 @@ import java.awt.Font;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -17,6 +20,8 @@ public class Flashcards {
 
     private JFrame mainFrame;
     private Set currentSet;
+
+    private LinkedHashMap<String, String> tempSet;
 
     private JFrame flashMain;
 
@@ -32,6 +37,10 @@ public class Flashcards {
     private JLabel correctLabel;
     private JLabel missedLabel;
 
+    private int remaining;
+    private int correct;
+    private int missed;
+
     private JButton nextButton;
     private JButton flipButton;
     private JButton previousButton;
@@ -40,10 +49,15 @@ public class Flashcards {
 
     private SpringLayout springLayout;
 
-    public Flashcards(Set currentSet, JFrame mainFrame, String currentFileName) {
+    private String currentTerm;
+    private String currentDefinition;
+
+    private boolean isOnTerm;
+
+    public Flashcards(Set currSet, JFrame mainFrame, String currentFileName) {
 
         this.mainFrame = mainFrame;
-        this.currentSet = currentSet;
+        this.currentSet = currSet;
 
         // initialize UI elements
         flashMain = new JFrame("Flashcards - " + currentFileName + ".set");
@@ -60,9 +74,13 @@ public class Flashcards {
         correctLabel = new JLabel("Correct: 0   ");
         missedLabel = new JLabel("   Missed: 0");
 
-        nextButton = new JButton("  >  ");
+        remaining = 0;
+        correct = 0;
+        missed = 0;
+
+        nextButton = new JButton(" \u2713 "); // checkmark
         flipButton = new JButton("Flip Card");
-        previousButton = new JButton("  <  ");
+        previousButton = new JButton("  x  ");
         restartButton = new JButton("Restart");
         missedButton = new JButton("Study Missed");
 
@@ -72,27 +90,137 @@ public class Flashcards {
         mainFrame.setVisible(false);
     }
 
-    public void populateCard(ArrayList<String> terms) {
+    private void incrementLabel(String labelName) {
+        switch (labelName) {
+            case "correct":
+                correct += 1;
+                correctLabel.setText("Correct: " + correct + "   ");
+                return;
+
+            case "missed":
+                missed += 1;
+                missedLabel.setText("   Missed: " + missed);
+                return;
+
+            case "remaining":
+                remaining += 1;
+                remainingLabel.setText("   Remaining: " + remaining + "   ");
+                return;
+
+            default:
+                return;
+
+        }
+
     }
 
-    public void nextCard() {
+    private void decrementLabel(String labelName) {
+        switch (labelName) {
+            case "correct":
+                correct -= 1;
+                correctLabel.setText("Correct: " + correct + "   ");
+                return;
+
+            case "missed":
+                missed -= 1;
+                missedLabel.setText("   Missed: " + missed);
+                return;
+
+            case "remaining":
+                remaining -= 1;
+                remainingLabel.setText("   Remaining: " + remaining + "   ");
+                return;
+
+            default:
+                return;
+
+        }
+    }
+
+    private void correctCard() {
 
     }
 
-    public void previousCard() {
+    private void wrongCard() {
 
     }
 
-    public void flipCard() {
+    private void flipCard() {
+        if (currentTerm != null) {
+            if (isOnTerm) {
+                flashText.setText(currentDefinition);
+                isOnTerm = false; // on definition now
+            } else {
+                flashText.setText(currentTerm);
+                isOnTerm = true; // on term now
+            }
+
+        }
+    }
+
+    private void restart() { // copies values from currentSet into tempset for studying, should be called
+                             // when UI first boots
+
+        if (!currentSet.isNull()) {
+
+            tempSet = new LinkedHashMap<String, String>();
+
+            remaining = 0;
+
+            // loops through currentset and copies to tempSet
+            for (String term : currentSet.getTerms()) {
+                tempSet.put(term, currentSet.get(term));
+                remaining++; // keeps track of total number of elements
+            }
+
+            // update tracking labels,
+            missedLabel.setText("   Missed: 0");
+            correctLabel.setText("Correct: 0   ");
+            remainingLabel.setText("   Remaining: " + remaining + "   ");
+        }
+        System.out.println("null set in flashcards:restart()");
+    }
+
+    private void restartMissed() {
 
     }
 
-    public void restart() {
+    private int numElements() {
+        if (tempSet != null) {
+            int elements = 0;
+            for (String term : tempSet.keySet()) {
+                elements++;
+            }
+            return elements;
+        }
 
+        return 0;
     }
 
-    public void restartMissed() {
+    private void populateNextCard() {
+        if (tempSet != null) {
+            if (numElements() <= 0) { // if no more elements, restart set
+                restart();
+            } else { // else, update current term and definition from random value in tempset
+                List<String> keyList = new ArrayList<>(tempSet.keySet());
+                Random random = new Random();
+                int termNumber = random.nextInt(tempSet.size());
 
+                currentTerm = keyList.get(termNumber);
+                currentDefinition = tempSet.get(currentTerm);
+
+                System.out.println("term: " + currentTerm);
+                System.out.println("def: " + currentDefinition);
+
+                // remove from tempSet so wont get chosen again
+                tempSet.remove(currentTerm);
+
+                // update the UI
+                flashText.setText(currentTerm);
+                isOnTerm = true; // needed for flip card
+            }
+
+        }
     }
 
     public void runMain() {
@@ -129,8 +257,8 @@ public class Flashcards {
         flashText.setCaretColor(Color.LIGHT_GRAY); // hides the cursor
 
         // buttons
-        nextButton.addActionListener(e -> nextCard());
-        previousButton.addActionListener(e -> previousCard());
+        nextButton.addActionListener(e -> correctCard());
+        previousButton.addActionListener(e -> wrongCard());
         flipButton.addActionListener(e -> flipCard());
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
@@ -179,6 +307,8 @@ public class Flashcards {
         flashMain.pack();
         flashMain.setSize(new Dimension(900, 600));
         flashMain.setVisible(true);
+        restart(); // loads tempSet so needs to be called when ui boots
+        populateNextCard(); // needs tempSet already loaded to add card, initializes isOnTerm
 
         // when closed, show main program
         flashMain.addWindowListener(new WindowAdapter() {

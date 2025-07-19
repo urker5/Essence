@@ -24,6 +24,7 @@ public class Flashcards {
     private Set currentSet;
 
     private LinkedHashMap<String, String> tempSet;
+    private LinkedHashMap<String, String> missedSet;
 
     private JFrame flashMain;
 
@@ -87,6 +88,8 @@ public class Flashcards {
         missedButton = new JButton("Study Missed");
 
         springLayout = new SpringLayout();
+
+        missedSet = new LinkedHashMap<String, String>();
 
         // hide mainframe from UI class
         mainFrame.setVisible(false);
@@ -174,6 +177,9 @@ public class Flashcards {
         if (remaining > 0) { // only populate next card if there are terms left
             decrementLabel("remaining");
             incrementLabel("missed");
+
+            missedSet.put(currentTerm, currentDefinition); // if missed, add term to missed set
+
             populateNextCard();
         } else { // clear current term and definition
             currentTerm = "";
@@ -183,7 +189,7 @@ public class Flashcards {
     }
 
     private void flipCard() {
-        if (currentTerm != null && remaining != 0) { // second condition prevents revealing card when no terms remaining
+        if (currentTerm != null && remaining > 0) { // second condition prevents revealing card when no terms remaining
             if (isOnTerm) {
                 cardSetText(currentDefinition);
                 isOnTerm = false; // on definition now
@@ -219,15 +225,42 @@ public class Flashcards {
             correctLabel.setText("Correct: 0   ");
             remainingLabel.setText("   Remaining: " + remaining + "   ");
 
-            populateNextCard();
+            populateNextCard(); // remember this! fogetting this is called in this function could cause issues
         } else {
             System.out.println("null set in flashcards:restart()");
         }
 
     }
 
-    private void restartMissed() {
+    private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
 
+        if (missedSet != null) {
+            tempSet = new LinkedHashMap<String, String>();
+
+            remaining = 0;
+
+            // move missedSet to tempSet
+            for (String term : missedSet.keySet()) {
+                tempSet.put(term, missedSet.get(term));
+                remaining++; // keeps track of total number of elements
+            }
+
+            // update tracking labels and tracking variabls
+
+            missed = 0;
+            correct = 0;
+
+            missedLabel.setText("   Missed: 0");
+            correctLabel.setText("Correct: 0   ");
+            remainingLabel.setText("   Remaining: " + remaining + "   ");
+
+            missedSet.clear(); // don't forget to clear the missed set!
+
+            populateNextCard(); // remember this! fogetting this is called in this function could cause issues
+
+        } else {
+            System.out.println("Null missedSet in Flashcards:restartMissed()");
+        }
     }
 
     private int numElements() {
@@ -353,8 +386,7 @@ public class Flashcards {
         flashMain.pack();
         flashMain.setSize(new Dimension(900, 600));
         flashMain.setVisible(true);
-        restart(); // loads tempSet so needs to be called when ui boots
-        populateNextCard(); // needs tempSet already loaded to add card, initializes isOnTerm
+        restart(); // loads tempSet so needs to be called when ui boots, also calls populateCard
 
         // when closed, show main program
         flashMain.addWindowListener(new WindowAdapter() {

@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -44,11 +46,13 @@ public class Flashcards {
     private int correct;
     private int missed;
 
-    private JButton nextButton;
+    private JButton correctButton;
     private JButton flipButton;
-    private JButton previousButton;
+    private JButton wrongButton;
     private JButton restartButton;
     private JButton missedButton;
+
+    private Font defaultFont;
 
     private SpringLayout springLayout;
 
@@ -73,6 +77,8 @@ public class Flashcards {
 
         flashText = new CustomTextPane(true);
 
+        defaultFont = new Font("Dialog", Font.BOLD, 14);
+
         remainingLabel = new JLabel("   Remaining: 0   ");
         correctLabel = new JLabel("Correct: 0   ");
         missedLabel = new JLabel("   Missed: 0");
@@ -81,9 +87,9 @@ public class Flashcards {
         correct = 0;
         missed = 0;
 
-        nextButton = new JButton(" \u2713 "); // checkmark
+        correctButton = new JButton(" \u2713 "); // checkmark
         flipButton = new JButton("Flip Card");
-        previousButton = new JButton("  x  ");
+        wrongButton = new JButton("  x  ");
         restartButton = new JButton("Restart");
         missedButton = new JButton("Study Missed");
 
@@ -93,6 +99,11 @@ public class Flashcards {
 
         // hide mainframe from UI class
         mainFrame.setVisible(false);
+    }
+
+    private void resetFocus() {// set focus back to textpane for keylistener, needs to be called after ANY
+                               // button is pressed
+        flashText.requestFocusInWindow();
     }
 
     private void cardSetText(String text) {
@@ -160,6 +171,7 @@ public class Flashcards {
     }
 
     private void correctCard() {
+        resetFocus(); // called after any button is pressed
 
         if (remaining > 0) { // only populate next card if there are terms left
             decrementLabel("remaining");
@@ -173,6 +185,7 @@ public class Flashcards {
     }
 
     private void wrongCard() {
+        resetFocus(); // called after any button is pressed
 
         if (remaining > 0) { // only populate next card if there are terms left
             decrementLabel("remaining");
@@ -189,6 +202,8 @@ public class Flashcards {
     }
 
     private void flipCard() {
+        resetFocus(); // called after any button is pressed
+
         if (currentTerm != null && remaining > 0) { // second condition prevents revealing card when no terms remaining
             if (isOnTerm) {
                 cardSetText(currentDefinition);
@@ -203,6 +218,7 @@ public class Flashcards {
 
     private void restart() { // copies values from currentSet into tempset for studying, should be called
                              // when UI first boots
+        resetFocus(); // called after any button is pressed
 
         if (!currentSet.isNull()) {
 
@@ -233,6 +249,13 @@ public class Flashcards {
     }
 
     private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
+        resetFocus(); // called after any button is pressed
+
+        if (missed <= 0) { // if no missed terms, clear UI
+            currentTerm = "";
+            currentDefinition = "";
+            cardSetText("");
+        }
 
         if (missedSet != null) {
             tempSet = new LinkedHashMap<String, String>();
@@ -304,21 +327,16 @@ public class Flashcards {
 
     public void runMain() {
         // main flashcard frame
-        // flashMain.setSize(900, 600);
-        flashMain.setResizable(false);
+        flashMain.setResizable(true);
 
         // panels: all five needed to make it look like a flashcard and not just a
-        // random label
-        // topPanel.setBackground(Color.red);
-        // leftPanel.setBackground(Color.blue);
+
         centerPanel.setBackground(Color.lightGray);
-        // rightPanel.setBackground(Color.yellow);
-        // bottomPanel.setBackground(Color.magenta);
 
         topPanel.setPreferredSize(new Dimension(100, 100));
-        leftPanel.setPreferredSize(new Dimension(100, 100));
+        leftPanel.setPreferredSize(new Dimension(125, 100));
         centerPanel.setPreferredSize(new Dimension(100, 100));
-        rightPanel.setPreferredSize(new Dimension(100, 100));
+        rightPanel.setPreferredSize(new Dimension(125, 100));
         bottomPanel.setPreferredSize(new Dimension(100, 100));
 
         flashMain.add(topPanel, BorderLayout.NORTH);
@@ -327,31 +345,65 @@ public class Flashcards {
         flashMain.add(rightPanel, BorderLayout.EAST);
         flashMain.add(bottomPanel, BorderLayout.SOUTH);
 
-        // textarea
+        // labels
+        remainingLabel.setFont(defaultFont);
+        correctLabel.setFont(defaultFont);
+        missedLabel.setFont(defaultFont);
+
+        // textpane
         flashText.setEditable(false);
-        // flashText.setLineWrap(true);
         flashText.setBackground(Color.LIGHT_GRAY);
-        // flashText.setBounds(150, 100, 400, 200);
         flashText.setFont(new Font("Courier New", 0, 40));
         flashText.setCaretColor(Color.LIGHT_GRAY); // hides the cursor
 
         // buttons
-        nextButton.addActionListener(e -> correctCard());
-        previousButton.addActionListener(e -> wrongCard());
+        correctButton.addActionListener(e -> correctCard());
+        wrongButton.addActionListener(e -> wrongCard());
         flipButton.addActionListener(e -> flipCard());
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
 
+        // keylistener (needs to be added to textpane because that is the focused
+        // component)
+        flashText.addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int keyCode = e.getKeyCode();
+
+                if (keyCode == KeyEvent.VK_SPACE) {// if enter, flip card
+                    flipCard();
+                } else if (keyCode == KeyEvent.VK_RIGHT) { // if right arrow, correctButton
+                    correctCard();
+                } else if (keyCode == KeyEvent.VK_LEFT) { // if left arrow, missedButton
+                    wrongCard();
+                } else if (keyCode == KeyEvent.VK_UP) {// if up arrow, restart
+                    restart();
+                } else if (keyCode == KeyEvent.VK_DOWN) {// if down arrow, study missed
+                    restartMissed();
+                }
+            }
+
+            @Override
+            public void keyTyped(KeyEvent e) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+
+            }
+        });
+
         // layout and packing
         centerPanel.setLayout(springLayout);
-        // centerPanel.setLayout(null);
         bottomPanel.setLayout(springLayout);
+        rightPanel.setLayout(springLayout);
 
         centerPanel.add(flashText);
 
-        bottomPanel.add(previousButton);
+        bottomPanel.add(wrongButton);
         bottomPanel.add(flipButton);
-        bottomPanel.add(nextButton);
+        bottomPanel.add(correctButton);
 
         topPanel.add(correctLabel);
         topPanel.add(remainingLabel);
@@ -366,20 +418,33 @@ public class Flashcards {
         springLayout.putConstraint(SpringLayout.NORTH, flashText, 100, SpringLayout.NORTH, centerPanel);
 
         // bottom layout
-        springLayout.putConstraint(SpringLayout.WEST, previousButton, 330, SpringLayout.WEST, bottomPanel);
-        springLayout.putConstraint(SpringLayout.NORTH, previousButton, 5, SpringLayout.NORTH, bottomPanel);
 
-        springLayout.putConstraint(SpringLayout.WEST, flipButton, 20, SpringLayout.EAST, previousButton);
-        springLayout.putConstraint(SpringLayout.NORTH, flipButton, 5, SpringLayout.NORTH, previousButton);
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, flipButton, 0, SpringLayout.HORIZONTAL_CENTER,
+                bottomPanel);
+        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, flipButton, 0, SpringLayout.VERTICAL_CENTER,
+                bottomPanel);
 
-        springLayout.putConstraint(SpringLayout.WEST, nextButton, 20, SpringLayout.EAST, flipButton);
-        springLayout.putConstraint(SpringLayout.NORTH, nextButton, 0, SpringLayout.NORTH, previousButton);
+        // set everything based on flipbutton as reference
+        springLayout.putConstraint(SpringLayout.EAST, wrongButton, -30, SpringLayout.WEST, flipButton);
+        springLayout.putConstraint(SpringLayout.NORTH, wrongButton, -5, SpringLayout.NORTH, flipButton);
 
-        springLayout.putConstraint(SpringLayout.WEST, restartButton, 10, SpringLayout.WEST, rightPanel);
-        springLayout.putConstraint(SpringLayout.NORTH, restartButton, 50, SpringLayout.NORTH, rightPanel); // notworking
+        springLayout.putConstraint(SpringLayout.WEST, correctButton, 30, SpringLayout.EAST, flipButton);
+        springLayout.putConstraint(SpringLayout.NORTH, correctButton, 0, SpringLayout.NORTH, wrongButton);
 
-        springLayout.putConstraint(SpringLayout.WEST, missedButton, 0, SpringLayout.EAST, restartButton);
-        springLayout.putConstraint(SpringLayout.NORTH, missedButton, 10, SpringLayout.NORTH, restartButton);
+        // right panel
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, restartButton, 0,
+                SpringLayout.HORIZONTAL_CENTER,
+                rightPanel);
+        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, restartButton, -20,
+                SpringLayout.VERTICAL_CENTER,
+                rightPanel);
+
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, missedButton, 0,
+                SpringLayout.HORIZONTAL_CENTER,
+                rightPanel);
+        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, missedButton, 20,
+                SpringLayout.VERTICAL_CENTER,
+                rightPanel);
 
         // set visible
 

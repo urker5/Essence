@@ -90,6 +90,12 @@ public class Flashcards {
         mainFrame.setVisible(false);
     }
 
+    private void checkClearCard() {
+        if (remaining == 0) {
+            flashText.setText("");
+        }
+    }
+
     private void incrementLabel(String labelName) {
         switch (labelName) {
             case "correct":
@@ -129,6 +135,7 @@ public class Flashcards {
             case "remaining":
                 remaining -= 1;
                 remainingLabel.setText("   Remaining: " + remaining + "   ");
+                checkClearCard(); // if remaining =0, clear card
                 return;
 
             default:
@@ -139,10 +146,28 @@ public class Flashcards {
 
     private void correctCard() {
 
+        if (remaining > 0) { // only populate next card if there are terms left
+            decrementLabel("remaining");
+            incrementLabel("correct");
+            populateNextCard();
+        } else { // clear current term and definition
+            currentTerm = "";
+            currentDefinition = "";
+        }
+
     }
 
     private void wrongCard() {
 
+        if (remaining > 0) { // only populate next card if there are terms left
+            decrementLabel("remaining");
+            incrementLabel("missed");
+            populateNextCard();
+        } else { // clear current term and definition
+            currentTerm = "";
+            currentDefinition = "";
+
+        }
     }
 
     private void flipCard() {
@@ -177,6 +202,8 @@ public class Flashcards {
             missedLabel.setText("   Missed: 0");
             correctLabel.setText("Correct: 0   ");
             remainingLabel.setText("   Remaining: " + remaining + "   ");
+
+            populateNextCard();
         }
         System.out.println("null set in flashcards:restart()");
     }
@@ -199,8 +226,8 @@ public class Flashcards {
 
     private void populateNextCard() {
         if (tempSet != null) {
-            if (numElements() <= 0) { // if no more elements, restart set
-                restart();
+            if (numElements() <= 0) { // if no more elements, return
+                return;
             } else { // else, update current term and definition from random value in tempset
                 List<String> keyList = new ArrayList<>(tempSet.keySet());
                 Random random = new Random();
@@ -209,15 +236,16 @@ public class Flashcards {
                 currentTerm = keyList.get(termNumber);
                 currentDefinition = tempSet.get(currentTerm);
 
-                System.out.println("term: " + currentTerm);
-                System.out.println("def: " + currentDefinition);
-
                 // remove from tempSet so wont get chosen again
                 tempSet.remove(currentTerm);
 
                 // update the UI
                 flashText.setText(currentTerm);
                 isOnTerm = true; // needed for flip card
+
+                if (remaining == 0) { // if no more terms, clear card
+                    flashText.setText("");
+                }
             }
 
         }

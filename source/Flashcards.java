@@ -13,8 +13,10 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.SpringLayout;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 
 public class Flashcards {
 
@@ -31,7 +33,7 @@ public class Flashcards {
     private JPanel rightPanel;
     private JPanel bottomPanel;
 
-    private JTextArea flashText;
+    private CustomTextPane flashText;
 
     private JLabel remainingLabel;
     private JLabel correctLabel;
@@ -68,7 +70,7 @@ public class Flashcards {
         rightPanel = new JPanel();
         bottomPanel = new JPanel();
 
-        flashText = new JTextArea();
+        flashText = new CustomTextPane(true);
 
         remainingLabel = new JLabel("   Remaining: 0   ");
         correctLabel = new JLabel("Correct: 0   ");
@@ -88,6 +90,16 @@ public class Flashcards {
 
         // hide mainframe from UI class
         mainFrame.setVisible(false);
+    }
+
+    private void cardSetText(String text) {
+        flashText.setText(text);
+
+        // center text
+        StyledDocument doc = flashText.getStyledDocument();
+        SimpleAttributeSet center = new SimpleAttributeSet();
+        StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+        doc.setParagraphAttributes(0, doc.getLength(), center, false);
     }
 
     private void checkClearCard() {
@@ -171,12 +183,12 @@ public class Flashcards {
     }
 
     private void flipCard() {
-        if (currentTerm != null) {
+        if (currentTerm != null && remaining != 0) { // second condition prevents revealing card when no terms remaining
             if (isOnTerm) {
-                flashText.setText(currentDefinition);
+                cardSetText(currentDefinition);
                 isOnTerm = false; // on definition now
             } else {
-                flashText.setText(currentTerm);
+                cardSetText(currentTerm);
                 isOnTerm = true; // on term now
             }
 
@@ -198,14 +210,20 @@ public class Flashcards {
                 remaining++; // keeps track of total number of elements
             }
 
-            // update tracking labels,
+            // update tracking labels and tracking variabls
+
+            missed = 0;
+            correct = 0;
+
             missedLabel.setText("   Missed: 0");
             correctLabel.setText("Correct: 0   ");
             remainingLabel.setText("   Remaining: " + remaining + "   ");
 
             populateNextCard();
+        } else {
+            System.out.println("null set in flashcards:restart()");
         }
-        System.out.println("null set in flashcards:restart()");
+
     }
 
     private void restartMissed() {
@@ -240,11 +258,11 @@ public class Flashcards {
                 tempSet.remove(currentTerm);
 
                 // update the UI
-                flashText.setText(currentTerm);
+                cardSetText(currentTerm);
                 isOnTerm = true; // needed for flip card
 
                 if (remaining == 0) { // if no more terms, clear card
-                    flashText.setText("");
+                    cardSetText("");
                 }
             }
 
@@ -278,7 +296,7 @@ public class Flashcards {
 
         // textarea
         flashText.setEditable(false);
-        flashText.setLineWrap(true);
+        // flashText.setLineWrap(true);
         flashText.setBackground(Color.LIGHT_GRAY);
         // flashText.setBounds(150, 100, 400, 200);
         flashText.setFont(new Font("Courier New", 0, 40));

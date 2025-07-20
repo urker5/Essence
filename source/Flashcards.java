@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
@@ -11,10 +12,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -363,36 +367,71 @@ public class Flashcards {
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
 
-        // keylistener (needs to be added to textpane because that is the focused
-        // component)
-        flashText.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-
-                if (keyCode == KeyEvent.VK_SPACE) {// if enter, flip card
-                    flipCard();
-                } else if (keyCode == KeyEvent.VK_RIGHT) { // if right arrow, correctButton
-                    correctCard();
-                } else if (keyCode == KeyEvent.VK_LEFT) { // if left arrow, missedButton
-                    wrongCard();
-                } else if (keyCode == KeyEvent.VK_UP) {// if up arrow, restart
-                    restart();
-                } else if (keyCode == KeyEvent.VK_DOWN) {// if down arrow, study missed
-                    restartMissed();
-                }
+        // keybinds
+        Action flipCardAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                flipCard();
             }
+        };
 
-            @Override
-            public void keyTyped(KeyEvent e) {
-
+        Action wrongCardAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                wrongCard();
             }
+        };
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-
+        Action correctCardAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                correctCard();
             }
-        });
+        };
+
+        Action restartAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                restart();
+            }
+        };
+
+        Action restartMissedAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                restartMissed();
+            }
+        };
+
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), flipCardAction);
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), correctCardAction);
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), wrongCardAction);
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("UP"), restartAction);
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), restartMissedAction);
+
+        // flashText.addKeyListener(new KeyListener() {
+        // @Override
+        // public void keyPressed(KeyEvent e) {
+        // int keyCode = e.getKeyCode();
+
+        // if (keyCode == KeyEvent.VK_SPACE) {// if enter, flip card
+        // flipCard();
+        // } else if (keyCode == KeyEvent.VK_RIGHT) { // if right arrow, correctButton
+        // correctCard();
+        // } else if (keyCode == KeyEvent.VK_LEFT) { // if left arrow, missedButton
+        // wrongCard();
+        // } else if (keyCode == KeyEvent.VK_UP) {// if up arrow, restart
+        // restart();
+        // } else if (keyCode == KeyEvent.VK_DOWN) {// if down arrow, study missed
+        // restartMissed();
+        // }
+        // }
+
+        // @Override
+        // public void keyTyped(KeyEvent e) {
+
+        // }
+
+        // @Override
+        // public void keyReleased(KeyEvent e) {
+
+        // }
+        // });
 
         // layout and packing
         centerPanel.setLayout(springLayout);
@@ -432,18 +471,14 @@ public class Flashcards {
         springLayout.putConstraint(SpringLayout.NORTH, correctButton, 0, SpringLayout.NORTH, wrongButton);
 
         // right panel
-        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, restartButton, 0,
-                SpringLayout.HORIZONTAL_CENTER,
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, restartButton, 0, SpringLayout.HORIZONTAL_CENTER,
                 rightPanel);
-        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, restartButton, -20,
-                SpringLayout.VERTICAL_CENTER,
+        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, restartButton, -20, SpringLayout.VERTICAL_CENTER,
                 rightPanel);
 
-        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, missedButton, 0,
-                SpringLayout.HORIZONTAL_CENTER,
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, missedButton, 0, SpringLayout.HORIZONTAL_CENTER,
                 rightPanel);
-        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, missedButton, 20,
-                SpringLayout.VERTICAL_CENTER,
+        springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, missedButton, 20, SpringLayout.VERTICAL_CENTER,
                 rightPanel);
 
         // set visible
@@ -451,6 +486,7 @@ public class Flashcards {
         flashMain.pack();
         flashMain.setSize(new Dimension(900, 600));
         flashMain.setVisible(true);
+
         restart(); // loads tempSet so needs to be called when ui boots, also calls populateCard
 
         // when closed, show main program

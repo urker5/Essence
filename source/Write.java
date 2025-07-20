@@ -153,7 +153,7 @@ public class Write {
     private void checkAnswer() {
         resetFocus(); // called after any button is pressed
 
-        if (tempSet != null) {
+        if (tempSet != null && remaining > 0) {// also checks if there are terms left
             String temp = writeText.getText();
             System.out.println(temp);
             writeText.setText(""); // clear text entry
@@ -191,7 +191,6 @@ public class Write {
             }
 
             // update tracking labels and tracking variabls
-
             missed = 0;
             correct = 0;
 

@@ -15,6 +15,7 @@ import java.util.Random;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -105,11 +106,6 @@ public class Flashcards {
         mainFrame.setVisible(false);
     }
 
-    private void resetFocus() {// set focus back to textpane for keylistener, needs to be called after ANY
-                               // button is pressed
-        flashText.requestFocusInWindow();
-    }
-
     private void cardSetText(String text) {
         flashText.setText(text);
 
@@ -175,7 +171,6 @@ public class Flashcards {
     }
 
     private void correctCard() {
-        resetFocus(); // called after any button is pressed
 
         if (remaining > 0) { // only populate next card if there are terms left
             decrementLabel("remaining");
@@ -189,7 +184,6 @@ public class Flashcards {
     }
 
     private void wrongCard() {
-        resetFocus(); // called after any button is pressed
 
         if (remaining > 0) { // only populate next card if there are terms left
             decrementLabel("remaining");
@@ -206,7 +200,6 @@ public class Flashcards {
     }
 
     private void flipCard() {
-        resetFocus(); // called after any button is pressed
 
         if (currentTerm != null && remaining > 0) { // second condition prevents revealing card when no terms remaining
             if (isOnTerm) {
@@ -222,7 +215,6 @@ public class Flashcards {
 
     private void restart() { // copies values from currentSet into tempset for studying, should be called
                              // when UI first boots
-        resetFocus(); // called after any button is pressed
 
         if (!currentSet.isNull()) {
 
@@ -253,7 +245,6 @@ public class Flashcards {
     }
 
     private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
-        resetFocus(); // called after any button is pressed
 
         if (missed <= 0) { // if no missed terms, clear UI
             currentTerm = "";
@@ -333,7 +324,7 @@ public class Flashcards {
         // main flashcard frame
         flashMain.setResizable(true);
 
-        // panels: all five needed to make it look like a flashcard and not just a
+        // panels: all five needed to make it look like a flashcard
 
         centerPanel.setBackground(Color.lightGray);
 
@@ -398,40 +389,21 @@ public class Flashcards {
             }
         };
 
-        flashText.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), flipCardAction);
-        flashText.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), correctCardAction);
-        flashText.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), wrongCardAction);
-        flashText.getInputMap().put(KeyStroke.getKeyStroke("UP"), restartAction);
-        flashText.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), restartMissedAction);
+        // remove keybinds from buttons
+        flipButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        correctButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        wrongButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        restartButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        missedButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
 
-        // flashText.addKeyListener(new KeyListener() {
-        // @Override
-        // public void keyPressed(KeyEvent e) {
-        // int keyCode = e.getKeyCode();
-
-        // if (keyCode == KeyEvent.VK_SPACE) {// if enter, flip card
-        // flipCard();
-        // } else if (keyCode == KeyEvent.VK_RIGHT) { // if right arrow, correctButton
-        // correctCard();
-        // } else if (keyCode == KeyEvent.VK_LEFT) { // if left arrow, missedButton
-        // wrongCard();
-        // } else if (keyCode == KeyEvent.VK_UP) {// if up arrow, restart
-        // restart();
-        // } else if (keyCode == KeyEvent.VK_DOWN) {// if down arrow, study missed
-        // restartMissed();
-        // }
-        // }
-
-        // @Override
-        // public void keyTyped(KeyEvent e) {
-
-        // }
-
-        // @Override
-        // public void keyReleased(KeyEvent e) {
-
-        // }
-        // });
+        // add keybinds for textpane
+        flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), flipCardAction);
+        flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"),
+                correctCardAction);
+        flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("LEFT"), wrongCardAction);
+        flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), restartAction);
+        flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"),
+                restartMissedAction);
 
         // layout and packing
         centerPanel.setLayout(springLayout);

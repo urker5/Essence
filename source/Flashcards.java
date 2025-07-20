@@ -392,6 +392,12 @@ public class Flashcards {
         restartButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
         missedButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
 
+        // remove keybinds from textpane
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("UP"), "do nothing");
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "do nothing");
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("LEFT"), "do nothing");
+        flashText.getInputMap().put(KeyStroke.getKeyStroke("RIGHT"), "do nothing");
+
         // add keybinds for textpane
         flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), flipCardAction);
         flashText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("RIGHT"),

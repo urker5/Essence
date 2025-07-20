@@ -98,11 +98,6 @@ public class Write {
         mainFrame.setVisible(false);
     }
 
-    private void resetFocus() {// set focus back to textarea for keylistener, needs to be called after
-                               // ANY button is pressed
-        writeText.requestFocusInWindow();
-    }
-
     private void incrementLabel(String labelName) {
         switch (labelName) {
             case "correct":
@@ -151,15 +146,15 @@ public class Write {
     }
 
     private void checkAnswer() {
-        resetFocus(); // called after any button is pressed
 
         if (tempSet != null && remaining > 0) {// also checks if there are terms left
-            String temp = writeText.getText();
-            System.out.println(temp);
+            String temp = writeText.getText(); // get text
+
             writeText.setText(""); // clear text entry
 
             if (temp.equals(currentDefinition)) { // if answer is correct
                 incrementLabel("correct");
+                decrementLabel("remaining");
             } else { // if answer is wrong
                 incrementLabel("missed");
                 decrementLabel("remaining");
@@ -176,7 +171,6 @@ public class Write {
 
     private void restart() { // copies values from currentSet into tempset for studying, should be called
                              // when UI first boots
-        resetFocus(); // called after any button is pressed
 
         if (!currentSet.isNull()) {
 
@@ -206,11 +200,11 @@ public class Write {
     }
 
     private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
-        resetFocus(); // called after any button is pressed
 
         if (missed <= 0) { // if no missed terms, clear UI
             currentTerm = "";
             currentDefinition = "";
+            writeText.setText("");
         }
 
         if (missedSet != null) {
@@ -225,7 +219,6 @@ public class Write {
             }
 
             // update tracking labels and tracking variabls
-
             missed = 0;
             correct = 0;
 
@@ -243,8 +236,8 @@ public class Write {
 
     private void populateTerm() {
         if (tempSet != null) {
-            if (numElements() <= 0) { // if no more elements, return
-                // possible set text to ""
+            if (numElements() <= 0) { // if no more elements, return and set label blank
+                termLabel.setText("");
                 return;
             } else { // else, update current term and definition from random value in tempset
                 List<String> keyList = new ArrayList<>(tempSet.keySet());
@@ -258,9 +251,9 @@ public class Write {
                 // update the UI
                 termLabel.setText(currentTerm);
 
-                if (remaining == 0) { // if no more terms, clear termlabel
-                    termLabel.setText("");
-                }
+                // if (remaining == 0) { // if no more terms, clear termlabel
+                // termLabel.setText("");
+                // }
             }
 
         }

@@ -3,8 +3,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -229,7 +227,6 @@ public class Flashcards {
             }
 
             // update tracking labels and tracking variabls
-
             missed = 0;
             correct = 0;
 
@@ -264,7 +261,6 @@ public class Flashcards {
             }
 
             // update tracking labels and tracking variabls
-
             missed = 0;
             correct = 0;
 

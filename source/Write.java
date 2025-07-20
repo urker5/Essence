@@ -1,9 +1,7 @@
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -11,12 +9,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
 
@@ -98,6 +98,10 @@ public class Write {
         mainFrame.setVisible(false);
     }
 
+    private void resetFocus() {// call after every button press
+        writeText.requestFocusInWindow();
+    }
+
     private void incrementLabel(String labelName) {
         switch (labelName) {
             case "correct":
@@ -146,6 +150,7 @@ public class Write {
     }
 
     private void checkAnswer() {
+        resetFocus();
 
         if (tempSet != null && remaining > 0) {// also checks if there are terms left
             String temp = writeText.getText(); // get text
@@ -171,6 +176,8 @@ public class Write {
 
     private void restart() { // copies values from currentSet into tempset for studying, should be called
                              // when UI first boots
+        resetFocus();
+        writeText.setText("");
 
         if (!currentSet.isNull()) {
 
@@ -200,6 +207,8 @@ public class Write {
     }
 
     private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
+        resetFocus();
+        writeText.setText("");
 
         if (missed <= 0) { // if no missed terms, clear UI
             currentTerm = "";
@@ -276,8 +285,6 @@ public class Write {
         writeMain.setResizable(true);
 
         // panels
-        centerPanel.setBackground(Color.lightGray); // temp for debug
-
         topPanel.setPreferredSize(new Dimension(100, 100));
         leftPanel.setPreferredSize(new Dimension(125, 100));
         centerPanel.setPreferredSize(new Dimension(100, 100));
@@ -299,39 +306,46 @@ public class Write {
         // textentry
         writeText.setLineWrap(true);
         writeText.setFont(new Font("Courier New", 0, 16));
-        writeText.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "doNothing");
 
         // buttons
         enterButton.addActionListener(e -> checkAnswer());
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
 
-        // keylistener (needs to be added to textarea because that is the focused
-        // component)
-        writeText.addKeyListener(new KeyListener() {
-            @Override
-            public void keyPressed(KeyEvent e) {
-                int keyCode = e.getKeyCode();
-
-                if (keyCode == KeyEvent.VK_ENTER) {// if enter, check answer
-                    checkAnswer();
-                } else if (keyCode == KeyEvent.VK_UP) {// if up arrow, restart
-                    restart();
-                } else if (keyCode == KeyEvent.VK_DOWN) {// if down arrow, study missed
-                    restartMissed();
-                }
+        // keybinds
+        Action checkAnswerAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                checkAnswer();
             }
+        };
 
-            @Override
-            public void keyTyped(KeyEvent e) {
-
+        Action restartAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                restart();
             }
+        };
 
-            @Override
-            public void keyReleased(KeyEvent e) {
-
+        Action restartMissedAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent e) {
+                restartMissed();
             }
-        });
+        };
+
+        // remove keybinds from buttons and textarea
+        enterButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        restartButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+        missedButton.getInputMap().put(KeyStroke.getKeyStroke("SPACE"), "do nothing");
+
+        writeText.getInputMap().put(KeyStroke.getKeyStroke("ENTER"), "doNothing");
+        writeText.getInputMap().put(KeyStroke.getKeyStroke("UP"), "do nothing");
+        writeText.getInputMap().put(KeyStroke.getKeyStroke("DOWN"), "do nothing");
+
+        // add keybinds for textarea
+        writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"),
+                checkAnswerAction);
+        writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), restartAction);
+        writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"),
+                restartMissedAction);
 
         // layout and packing
         centerPanel.setLayout(springLayout);

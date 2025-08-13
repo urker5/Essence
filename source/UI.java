@@ -274,11 +274,12 @@ public class UI implements ActionListener {
     }
 
     public void openLearn() {
-        System.out.println("adsfle");
+        System.out.println("test");
     }
 
     public void openWrite() {
-        System.out.println("ummms");
+        Write writeSesh = new Write(currentSet, mainFrame, currentFileName);
+        writeSesh.runMain();
     }
 
     public void runMain() {

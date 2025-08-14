@@ -11,11 +11,13 @@ import java.util.Random;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SpringLayout;
@@ -25,11 +27,12 @@ public class Learn {
     private JFrame mainFrame;
     private Set currentSet;
 
+    private LinkedHashMap<String, String> fullSet;
     private LinkedHashMap<String, String> unfamiliarSet;
     private LinkedHashMap<String, String> familiarSet;
     private LinkedHashMap<String, String> missedSet;
 
-    private JFrame writeMain;
+    private JFrame learnMain;
 
     private JPanel topPanel;
     private JPanel leftPanel;
@@ -57,6 +60,13 @@ public class Learn {
 
     private Font defaultFont;
 
+    private ButtonGroup buttonGroup;
+
+    private JRadioButton option1;
+    private JRadioButton option2;
+    private JRadioButton option3;
+    private JRadioButton option4;
+
     private SpringLayout springLayout;
 
     private String currentTerm;
@@ -70,22 +80,13 @@ public class Learn {
         this.currentSet = currSet;
 
         // initialize UI elements
-        writeMain = new JFrame("Learn - " + currentFileName + ".set");
+        learnMain = new JFrame("Learn - " + currentFileName + ".set");
 
         topPanel = new JPanel();
         leftPanel = new JPanel();
         centerPanel = new JPanel();
         rightPanel = new JPanel();
         bottomPanel = new JPanel();
-
-        writeText = new JTextArea(1, 20);
-
-        termLabel = new JLabel("");
-        enterButton = new JButton("Enter");
-        restartButton = new JButton("Restart");
-        missedButton = new JButton("Study Missed");
-
-        defaultFont = new Font("Dialog", Font.BOLD, 14);
 
         unfamiliarLabel = new JLabel("Unfamiliar: 0   ");
         familiarLabel = new JLabel("Familiar: 0   ");
@@ -103,6 +104,24 @@ public class Learn {
         missedSet = new LinkedHashMap<String, String>();
 
         familiarMode = false;
+
+        // initialize write components
+        writeText = new JTextArea(1, 20);
+
+        termLabel = new JLabel("");
+        enterButton = new JButton("Enter");
+        restartButton = new JButton("Restart");
+        missedButton = new JButton("Study Missed");
+
+        defaultFont = new Font("Dialog", Font.BOLD, 14);
+
+        // initialize multiple choice components
+        buttonGroup = new ButtonGroup();
+
+        option1 = new JRadioButton();
+        option2 = new JRadioButton();
+        option3 = new JRadioButton();
+        option4 = new JRadioButton();
 
         // hide mainframe from UI class
         mainFrame.setVisible(false);
@@ -173,7 +192,7 @@ public class Learn {
 
     }
 
-    private void restartMissed() { // almost identical to restart() except missedSet instead of currentSet
+    private void restartMissed() {
 
     }
 
@@ -193,17 +212,19 @@ public class Learn {
         return 0;
     }
 
-    public void createMultipleChoiceQuestion() {
-
+    private void createMultipleChoiceQuestion() {
+        // get 4 random terms
+        //
     }
 
-    public void createWriteQuestion() {
+    private void createWriteQuestion() {
 
     }
 
     public void runMain() {
-        // main flashcard frame
-        writeMain.setResizable(true);
+        // initialize all ui elements
+        // main learn frame
+        learnMain.setResizable(true);
 
         // panels
         topPanel.setPreferredSize(new Dimension(100, 100));
@@ -212,11 +233,11 @@ public class Learn {
         rightPanel.setPreferredSize(new Dimension(125, 100));
         bottomPanel.setPreferredSize(new Dimension(100, 100));
 
-        writeMain.add(topPanel, BorderLayout.NORTH);
-        writeMain.add(leftPanel, BorderLayout.WEST);
-        writeMain.add(centerPanel, BorderLayout.CENTER);
-        writeMain.add(rightPanel, BorderLayout.EAST);
-        writeMain.add(bottomPanel, BorderLayout.SOUTH);
+        learnMain.add(topPanel, BorderLayout.NORTH);
+        learnMain.add(leftPanel, BorderLayout.WEST);
+        learnMain.add(centerPanel, BorderLayout.CENTER);
+        learnMain.add(rightPanel, BorderLayout.EAST);
+        learnMain.add(bottomPanel, BorderLayout.SOUTH);
 
         // labels
         unfamiliarLabel.setFont(defaultFont);
@@ -232,6 +253,12 @@ public class Learn {
         enterButton.addActionListener(e -> checkAnswer());
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
+
+        // buttongroup and radiobuttons
+        buttonGroup.add(option1);
+        buttonGroup.add(option2);
+        buttonGroup.add(option3);
+        buttonGroup.add(option4);
 
         // keybinds
         Action checkAnswerAction = new AbstractAction() {
@@ -273,29 +300,55 @@ public class Learn {
         bottomPanel.setLayout(springLayout);
         rightPanel.setLayout(springLayout);
 
-        centerPanel.add(writeText);
-        centerPanel.add(enterButton);
+        // center
         centerPanel.add(termLabel);
 
+        // // write
+        centerPanel.add(writeText);
+        centerPanel.add(enterButton);
+
+        // // multiple choice
+        centerPanel.add(option1);
+        centerPanel.add(option2);
+        centerPanel.add(option3);
+        centerPanel.add(option4);
+
+        // top panel
         topPanel.add(unfamiliarLabel);
         topPanel.add(familiarLabel);
         topPanel.add(correctLabel);
         topPanel.add(missedLabel);
 
+        // right panel
         rightPanel.add(restartButton);
         rightPanel.add(missedButton);
 
         // center layout
+        // // general and write
         springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, writeText, 0, SpringLayout.HORIZONTAL_CENTER,
                 centerPanel);
         springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, writeText, 0, SpringLayout.VERTICAL_CENTER,
                 centerPanel);
 
-        springLayout.putConstraint(SpringLayout.EAST, termLabel, -20, SpringLayout.WEST, writeText);
-        springLayout.putConstraint(SpringLayout.NORTH, termLabel, 0, SpringLayout.NORTH, writeText);
+        springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, termLabel, 0, SpringLayout.HORIZONTAL_CENTER,
+                centerPanel);
+        springLayout.putConstraint(SpringLayout.SOUTH, termLabel, -50, SpringLayout.NORTH, writeText);
 
         springLayout.putConstraint(SpringLayout.WEST, enterButton, 20, SpringLayout.EAST, writeText);
         springLayout.putConstraint(SpringLayout.NORTH, enterButton, 0, SpringLayout.NORTH, writeText);
+
+        // // multiple choice
+        springLayout.putConstraint(SpringLayout.EAST, option1, 20, SpringLayout.WEST, writeText);
+        springLayout.putConstraint(SpringLayout.SOUTH, option1, -20, SpringLayout.NORTH, writeText);
+
+        springLayout.putConstraint(SpringLayout.WEST, option2, 5, SpringLayout.EAST, option1);
+        springLayout.putConstraint(SpringLayout.NORTH, option2, 0, SpringLayout.NORTH, option1);
+
+        springLayout.putConstraint(SpringLayout.WEST, option3, 5, SpringLayout.EAST, option2);
+        springLayout.putConstraint(SpringLayout.NORTH, option3, 0, SpringLayout.NORTH, option2);
+
+        springLayout.putConstraint(SpringLayout.WEST, option4, 5, SpringLayout.EAST, option3);
+        springLayout.putConstraint(SpringLayout.NORTH, option4, 0, SpringLayout.NORTH, option3);
 
         // right panel
         springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, restartButton, 0,
@@ -312,16 +365,26 @@ public class Learn {
                 SpringLayout.VERTICAL_CENTER,
                 rightPanel);
 
-        // set visible
+        // temp ui layout testing
+        termLabel.setText("term");
 
-        writeMain.pack();
-        writeMain.setSize(new Dimension(900, 600));
-        writeMain.setVisible(true);
+        option1.setText("option 1");
+        option2.setText("option 2");
+        option3.setText("option 3");
+        option4.setText("option 4");
+
+        writeText.setVisible(false);
+        enterButton.setVisible(false);
+
+        // set visible
+        learnMain.pack();
+        learnMain.setSize(new Dimension(900, 600));
+        learnMain.setVisible(true);
         restart(); // loads unfamiliarSet so needs to be called when ui boots, also calls
                    // populateTerm
 
         // when closed, show main program
-        writeMain.addWindowListener(new WindowAdapter() {
+        learnMain.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 mainFrame.setVisible(true);

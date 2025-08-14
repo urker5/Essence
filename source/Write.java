@@ -281,7 +281,7 @@ public class Write {
     }
 
     public void runMain() {
-        // main flashcard frame
+        // main write frame
         writeMain.setResizable(true);
 
         // panels

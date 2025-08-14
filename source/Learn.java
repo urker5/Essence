@@ -69,8 +69,8 @@ public class Learn {
 
     private SpringLayout springLayout;
 
-    private String currentTerm;
-    private String currentDefinition;
+    // private String currentTerm;
+    // private String currentDefinition;
 
     private boolean familiarMode;
 
@@ -188,16 +188,24 @@ public class Learn {
 
     }
 
+    private String getDefinition(String term) { // returns the definition of given term
+        return fullSet.get(term);
+    }
+
     private void restart() {
 
         if (!currentSet.isNull()) {
 
+            fullSet = new LinkedHashMap<String, String>();
             unfamiliarSet = new LinkedHashMap<String, String>();
 
             unfamiliar = 0;
 
-            // loops through currentset and copies to unfamiliarSet
+            // loops through currentset and copies to fullSet
             for (String term : currentSet.getTerms()) {
+
+                // full and unfamiliar set need to be the same at the beginning
+                fullSet.put(term, currentSet.get(term));
                 unfamiliarSet.put(term, currentSet.get(term));
                 unfamiliar++; // keeps track of total number of elements
             }
@@ -212,7 +220,7 @@ public class Learn {
             missedLabel.setText("   Missed: 0");
             correctLabel.setText("Correct: 0   ");
 
-            // populateTerm(); need to figure this out
+            createMultipleChoiceQuestion();
         } else {
             System.out.println("null set in learn:restart()");
         }
@@ -238,9 +246,52 @@ public class Learn {
         return 0;
     }
 
+    private String getRandomTerm(LinkedHashMap<String, String> set, String setName) { // used to support cMCQ
+        List<String> keyList;
+        Random random;
+        int termNumber;
+
+        switch (setName) {
+
+            case "unfamiliar":
+                keyList = new ArrayList<>(unfamiliarSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(unfamiliarSet.size());
+                return keyList.get(termNumber);
+
+            case "familiar":
+                keyList = new ArrayList<>(familiarSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(familiarSet.size());
+                return keyList.get(termNumber);
+
+            case "full":
+                keyList = new ArrayList<>(fullSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(fullSet.size());
+                return keyList.get(termNumber);
+
+            default:
+                return "";
+
+        }
+    }
+
     private void createMultipleChoiceQuestion() {
-        // get 4 random terms
-        //
+        // get 4 random items, one from unfamiliar and the rest random but no duplicates
+        if (fullSet != null) {
+
+            String[] options = { "", "", "", "" }; // needed to check for duplicates
+
+            boolean completed = false;
+
+            // options[0] = keyList.get(termNumber);
+
+        }
+
     }
 
     private void createWriteQuestion() {

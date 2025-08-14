@@ -274,7 +274,8 @@ public class UI implements ActionListener {
     }
 
     public void openLearn() {
-        System.out.println("test");
+        Learn leanSesh = new Learn(currentSet, mainFrame, currentFileName);
+        leanSesh.runMain();
     }
 
     public void openWrite() {

@@ -190,6 +190,32 @@ public class Learn {
 
     private void restart() {
 
+        if (!currentSet.isNull()) {
+
+            unfamiliarSet = new LinkedHashMap<String, String>();
+
+            unfamiliar = 0;
+
+            // loops through currentset and copies to unfamiliarSet
+            for (String term : currentSet.getTerms()) {
+                unfamiliarSet.put(term, currentSet.get(term));
+                unfamiliar++; // keeps track of total number of elements
+            }
+
+            // update tracking labels and tracking variabls
+            familiar = 0;
+            missed = 0;
+            correct = 0;
+
+            unfamiliarLabel.setText("Unfamiliar: " + unfamiliar + "   ");
+            familiarLabel.setText("Familiar: " + familiar + "   ");
+            missedLabel.setText("   Missed: 0");
+            correctLabel.setText("Correct: 0   ");
+
+            // populateTerm(); need to figure this out
+        } else {
+            System.out.println("null set in learn:restart()");
+        }
     }
 
     private void restartMissed() {
@@ -373,15 +399,14 @@ public class Learn {
         option3.setText("option 3");
         option4.setText("option 4");
 
-        writeText.setVisible(false);
-        enterButton.setVisible(false);
+        // writeText.setVisible(false);
+        // enterButton.setVisible(false);
 
         // set visible
         learnMain.pack();
         learnMain.setSize(new Dimension(900, 600));
         learnMain.setVisible(true);
-        restart(); // loads unfamiliarSet so needs to be called when ui boots, also calls
-                   // populateTerm
+        restart(); // loads unfamiliarSet so needs to be called when ui boots
 
         // when closed, show main program
         learnMain.addWindowListener(new WindowAdapter() {

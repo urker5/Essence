@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
@@ -184,10 +186,6 @@ public class Learn {
         }
     }
 
-    private void checkAnswer() {
-
-    }
-
     private String getDefinition(String term) { // returns the definition of given term
         return fullSet.get(term);
     }
@@ -246,7 +244,7 @@ public class Learn {
         return 0;
     }
 
-    private String getRandomTerm(LinkedHashMap<String, String> set, String setName) { // used to support cMCQ
+    private String getRandomDefinition(LinkedHashMap<String, String> set, String setName) { // used to support cMCQ
         List<String> keyList;
         Random random;
         int termNumber;
@@ -258,26 +256,44 @@ public class Learn {
 
                 random = new Random();
                 termNumber = random.nextInt(unfamiliarSet.size());
-                return keyList.get(termNumber);
+                return getDefinition(keyList.get(termNumber));
 
             case "familiar":
                 keyList = new ArrayList<>(familiarSet.keySet());
 
                 random = new Random();
                 termNumber = random.nextInt(familiarSet.size());
-                return keyList.get(termNumber);
+                return getDefinition(keyList.get(termNumber));
 
             case "full":
                 keyList = new ArrayList<>(fullSet.keySet());
 
                 random = new Random();
                 termNumber = random.nextInt(fullSet.size());
-                return keyList.get(termNumber);
+                return getDefinition(keyList.get(termNumber));
 
             default:
                 return "";
 
         }
+    }
+
+    private boolean checkListDuplicate(String[] list, String checkTerm) {
+        for (int i = 0; i < list.length; i++) {
+            if (list[i].equals(checkTerm)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean checkMultipleChoiceAnswer(String answer) {
+        // gets current term from termlabel and gets current definition
+        // compares current definition to submitted answer
+        // System.out.println("term: " + termLabel.getText() + " " + "def: " +
+        // getDefinition(termLabel.getText()));
+        return answer.equals(getDefinition(termLabel.getText()));
     }
 
     private void createMultipleChoiceQuestion() {
@@ -286,10 +302,69 @@ public class Learn {
 
             String[] options = { "", "", "", "" }; // needed to check for duplicates
 
-            boolean completed = false;
+            String tempTerm;
 
-            // options[0] = keyList.get(termNumber);
+            options[0] = getRandomDefinition(unfamiliarSet, "unfamiliar");
 
+            for (int i = 1; i < options.length; i++) {
+
+                tempTerm = getRandomDefinition(fullSet, "full");
+
+                // if duplicate, run loop again
+                while (!checkListDuplicate(options, tempTerm)) {
+                    tempTerm = getRandomDefinition(fullSet, "full");
+                }
+
+                // once no dublicate, add term
+                options[i] = tempTerm;
+
+            }
+
+            // make buttons visible and assign names
+            option1.setText(options[0]);
+            option2.setText(options[1]);
+            option3.setText(options[2]);
+            option4.setText(options[3]);
+
+            option1.setVisible(true);
+            option2.setVisible(true);
+            option3.setVisible(true);
+            option4.setVisible(true);
+
+            // create actionlistener, routes each buttonclick to action
+            ActionListener aListen = new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    // if (option1.isSelected()) {
+                    // System.out.println(e.getActionCommand());
+
+                    // } else if (option2.isSelected()) {
+                    // System.out.println(e.getActionCommand());
+
+                    // } else if (option3.isSelected()) {
+                    // System.out.println(e.getActionCommand());
+
+                    // } else if (option4.isSelected()) {
+                    // System.out.println(e.getActionCommand());
+                    // }
+
+                    if (checkMultipleChoiceAnswer(e.getActionCommand())) {
+                        System.out.println("you got the right answr");
+                    } else {
+                        System.out.println("wrong answer");
+                    }
+
+                }
+            };
+
+            // add actionlistener
+            option1.addActionListener(aListen);
+            option2.addActionListener(aListen);
+            option3.addActionListener(aListen);
+            option4.addActionListener(aListen);
+
+        } else {
+            System.out.println("null set in  Learn:createMutlipleChoiceQuestion");
         }
 
     }
@@ -327,7 +402,7 @@ public class Learn {
         writeText.setFont(new Font("Courier New", 0, 16));
 
         // buttons
-        enterButton.addActionListener(e -> checkAnswer());
+        // enterButton.addActionListener(e -> checkAnswer());
         restartButton.addActionListener(e -> restart());
         missedButton.addActionListener(e -> restartMissed());
 
@@ -340,7 +415,7 @@ public class Learn {
         // keybinds
         Action checkAnswerAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                checkAnswer();
+                // checkAnswer();
             }
         };
 
@@ -443,7 +518,7 @@ public class Learn {
                 rightPanel);
 
         // temp ui layout testing
-        termLabel.setText("term");
+        termLabel.setText("one");
 
         option1.setText("option 1");
         option2.setText("option 2");

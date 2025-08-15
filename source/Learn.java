@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Random;
@@ -71,10 +73,8 @@ public class Learn {
 
     private SpringLayout springLayout;
 
-    // private String currentTerm;
-    // private String currentDefinition;
-
-    private boolean familiarMode;
+    private String currentTerm;
+    private String currentDefinition;
 
     public Learn(Set currSet, JFrame mainFrame, String currentFileName) {
 
@@ -104,8 +104,6 @@ public class Learn {
 
         familiarSet = new LinkedHashMap<String, String>();
         missedSet = new LinkedHashMap<String, String>();
-
-        familiarMode = false;
 
         // initialize write components
         writeText = new JTextArea(1, 20);
@@ -218,7 +216,8 @@ public class Learn {
             missedLabel.setText("   Missed: 0");
             correctLabel.setText("Correct: 0   ");
 
-            createMultipleChoiceQuestion();
+            populateTerm();
+
         } else {
             System.out.println("null set in learn:restart()");
         }
@@ -230,6 +229,27 @@ public class Learn {
 
     private void populateTerm() {
 
+        if (!unfamiliarSet.isEmpty()) {
+            currentTerm = getRandomTerm("unfamiliar");
+            currentDefinition = getDefinition(currentTerm);
+
+            toggleWriteVisibility(false);
+            toggleMultipleChoiceVisibilty(true);
+            createMultipleChoiceQuestion();
+        } else if (!familiarSet.isEmpty()) {
+            currentTerm = getRandomTerm("familiar");
+            currentDefinition = getDefinition(currentTerm);
+
+            toggleMultipleChoiceVisibilty(false);
+            toggleWriteVisibility(true);
+            createWriteQuestion();
+        } else {
+            currentTerm = "";
+            currentDefinition = "";
+            System.out.println("familiar and unfamiliar set should be empty");
+        }
+
+        termLabel.setText(currentTerm);
     }
 
     private int numElements() {
@@ -244,7 +264,41 @@ public class Learn {
         return 0;
     }
 
-    private String getRandomDefinition(LinkedHashMap<String, String> set, String setName) { // used to support cMCQ
+    private String getRandomTerm(String setName) {
+        List<String> keyList;
+        Random random;
+        int termNumber;
+
+        switch (setName) {
+
+            case "unfamiliar":
+                keyList = new ArrayList<>(unfamiliarSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(unfamiliarSet.size());
+                return keyList.get(termNumber);
+
+            case "familiar":
+                keyList = new ArrayList<>(familiarSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(familiarSet.size());
+                return keyList.get(termNumber);
+
+            case "full":
+                keyList = new ArrayList<>(fullSet.keySet());
+
+                random = new Random();
+                termNumber = random.nextInt(fullSet.size());
+                return keyList.get(termNumber);
+
+            default:
+                return "";
+
+        }
+    }
+
+    private String getRandomDefinition(String setName) {
         List<String> keyList;
         Random random;
         int termNumber;
@@ -288,13 +342,104 @@ public class Learn {
         return true;
     }
 
-    private boolean checkMultipleChoiceAnswer(String answer) {
-        // gets current term from termlabel and gets current definition
-        // compares current definition to submitted answer
-        // System.out.println("term: " + termLabel.getText() + " " + "def: " +
-        // getDefinition(termLabel.getText()));
-        return answer.equals(getDefinition(termLabel.getText()));
+    private void randomizeArray(String arr[]) {
+
+        // Creating a object for Random class
+        Random r = new Random();
+
+        // Start from the last element and swap one by one. We don't
+        // need to run for the first element that's why i > 0
+        for (int i = arr.length - 1; i > 0; i--) {
+
+            // Pick a random index from 0 to i
+            int j = r.nextInt(i);
+
+            // Swap arr[i] with the element at random index
+            String temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+
     }
+
+    private boolean checkMultipleChoiceAnswer(String answer) {
+        return answer.equals(currentDefinition);
+    }
+
+    private void toggleMultipleChoiceVisibilty() {
+
+        if (option1.isVisible()) {
+            option1.setVisible(false);
+            option2.setVisible(false);
+            option3.setVisible(false);
+            option4.setVisible(false);
+        } else {
+            option1.setVisible(true);
+            option2.setVisible(true);
+            option3.setVisible(true);
+            option4.setVisible(true);
+        }
+
+    }
+
+    private void toggleMultipleChoiceVisibilty(boolean visible) {
+
+        if (!visible) {
+            option1.setVisible(false);
+            option2.setVisible(false);
+            option3.setVisible(false);
+            option4.setVisible(false);
+        } else {
+            option1.setVisible(true);
+            option2.setVisible(true);
+            option3.setVisible(true);
+            option4.setVisible(true);
+        }
+    }
+
+    private void toggleWriteVisibility() {
+        if (writeText.isVisible()) {
+            writeText.setVisible(false);
+            enterButton.setVisible(false);
+        } else {
+            writeText.setVisible(true);
+            enterButton.setVisible(true);
+        }
+    }
+
+    private void toggleWriteVisibility(boolean visible) {
+        if (visible) {
+            writeText.setVisible(true);
+            enterButton.setVisible(true);
+        } else {
+            writeText.setVisible(false);
+            enterButton.setVisible(false);
+        }
+    }
+
+    // create actionlistener, routes each buttonclick to action
+    ActionListener aListen = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+
+            if (checkMultipleChoiceAnswer(e.getActionCommand())) {
+                System.out.println("you got the right answr");
+                // update sets and labels
+                familiarSet.put(currentTerm, currentDefinition);
+                unfamiliarSet.remove(currentTerm);
+
+                decrementLabel("unfamiliar");
+                incrementLabel("familiar");
+
+            } else {
+                System.out.println("wrong answer: " + e.getActionCommand());
+            }
+
+            // hide in case next question is write question
+            // toggleMultipleChoiceVisibilty(false);
+            populateTerm();
+
+        }
+    };
 
     private void createMultipleChoiceQuestion() {
         // get 4 random items, one from unfamiliar and the rest random but no duplicates
@@ -304,15 +449,15 @@ public class Learn {
 
             String tempTerm;
 
-            options[0] = getRandomDefinition(unfamiliarSet, "unfamiliar");
+            options[0] = getDefinition(currentTerm);
 
             for (int i = 1; i < options.length; i++) {
 
-                tempTerm = getRandomDefinition(fullSet, "full");
+                tempTerm = getRandomDefinition("full");
 
                 // if duplicate, run loop again
                 while (!checkListDuplicate(options, tempTerm)) {
-                    tempTerm = getRandomDefinition(fullSet, "full");
+                    tempTerm = getRandomDefinition("full");
                 }
 
                 // once no dublicate, add term
@@ -320,48 +465,14 @@ public class Learn {
 
             }
 
-            // make buttons visible and assign names
+            // make buttons visible and assign random names
+            randomizeArray(options);
+            buttonGroup.clearSelection();
+
             option1.setText(options[0]);
             option2.setText(options[1]);
             option3.setText(options[2]);
             option4.setText(options[3]);
-
-            option1.setVisible(true);
-            option2.setVisible(true);
-            option3.setVisible(true);
-            option4.setVisible(true);
-
-            // create actionlistener, routes each buttonclick to action
-            ActionListener aListen = new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-
-                    // if (option1.isSelected()) {
-                    // System.out.println(e.getActionCommand());
-
-                    // } else if (option2.isSelected()) {
-                    // System.out.println(e.getActionCommand());
-
-                    // } else if (option3.isSelected()) {
-                    // System.out.println(e.getActionCommand());
-
-                    // } else if (option4.isSelected()) {
-                    // System.out.println(e.getActionCommand());
-                    // }
-
-                    if (checkMultipleChoiceAnswer(e.getActionCommand())) {
-                        System.out.println("you got the right answr");
-                    } else {
-                        System.out.println("wrong answer");
-                    }
-
-                }
-            };
-
-            // add actionlistener
-            option1.addActionListener(aListen);
-            option2.addActionListener(aListen);
-            option3.addActionListener(aListen);
-            option4.addActionListener(aListen);
 
         } else {
             System.out.println("null set in  Learn:createMutlipleChoiceQuestion");
@@ -369,7 +480,13 @@ public class Learn {
 
     }
 
+    public void checkWriteAnswer() {
+
+    }
+
     private void createWriteQuestion() {
+        writeText.setText("");
+        writeText.requestFocusInWindow();
 
     }
 
@@ -411,6 +528,12 @@ public class Learn {
         buttonGroup.add(option2);
         buttonGroup.add(option3);
         buttonGroup.add(option4);
+
+        // add actionlistener
+        option1.addActionListener(aListen);
+        option2.addActionListener(aListen);
+        option3.addActionListener(aListen);
+        option4.addActionListener(aListen);
 
         // keybinds
         Action checkAnswerAction = new AbstractAction() {
@@ -518,15 +641,11 @@ public class Learn {
                 rightPanel);
 
         // temp ui layout testing
-        termLabel.setText("one");
 
-        option1.setText("option 1");
-        option2.setText("option 2");
-        option3.setText("option 3");
-        option4.setText("option 4");
-
-        // writeText.setVisible(false);
-        // enterButton.setVisible(false);
+        // option1.setText("option 1");
+        // option2.setText("option 2");
+        // option3.setText("option 3");
+        // option4.setText("option 4");
 
         // set visible
         learnMain.pack();

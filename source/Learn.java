@@ -434,8 +434,6 @@ public class Learn {
                 System.out.println("wrong answer: " + e.getActionCommand());
             }
 
-            // hide in case next question is write question
-            // toggleMultipleChoiceVisibilty(false);
             populateTerm();
 
         }
@@ -481,7 +479,27 @@ public class Learn {
     }
 
     public void checkWriteAnswer() {
+        String temp = writeText.getText(); // get text
+        writeText.setText(""); // clear text entry
 
+        if (familiar > 0) {
+
+            if (temp.equals(currentDefinition)) {
+                System.out.println("Correct!");
+
+                incrementLabel("correct");
+
+            } else {
+                System.out.println("wroooooong: " + temp);
+
+                incrementLabel("missed");
+            }
+
+            familiarSet.remove(currentTerm);
+            decrementLabel("familiar");
+
+            createWriteQuestion();
+        }
     }
 
     private void createWriteQuestion() {
@@ -536,9 +554,9 @@ public class Learn {
         option4.addActionListener(aListen);
 
         // keybinds
-        Action checkAnswerAction = new AbstractAction() {
+        Action checkWriteAnswerAction = new AbstractAction() {
             public void actionPerformed(ActionEvent e) {
-                // checkAnswer();
+                checkWriteAnswer();
             }
         };
 
@@ -565,7 +583,7 @@ public class Learn {
 
         // add keybinds for textarea
         writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"),
-                checkAnswerAction);
+                checkWriteAnswerAction);
         writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("UP"), restartAction);
         writeText.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("DOWN"),
                 restartMissedAction);

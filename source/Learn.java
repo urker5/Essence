@@ -227,8 +227,11 @@ public class Learn {
     }
 
     private void restartMissed() {
+        if (unfamiliar > 0) { // if still unfamiliar terms, do nothing cause in multiple choice and missed is
+                              // only for write mode
+            return;
 
-        if (missed <= 0) { // if no missed terms, clear UI
+        } else if (missed <= 0) { // if no missed terms, clear UI
             currentTerm = "";
             currentDefinition = "";
             writeText.setText("");
@@ -382,34 +385,28 @@ public class Learn {
         }
     }
 
-    private boolean checkListDuplicate(String[] list, String checkTerm) {// looops through parameter list and if
-                                                                         // parameter term is found, returns false
-        for (int i = 0; i < list.length; i++) {
-            if (list[i].equals(checkTerm)) {
-                return false;
+    private boolean isTermFound(List<String> list, String checkTerm) {// looops through parameter list and if parameter
+                                                                      // term is found in list, returns true
+        for (String item : list) {
+
+            if (item.equals(checkTerm)) {
+                return true;
             }
         }
 
-        return true;
+        return false;
     }
 
-    private void randomizeArray(String arr[]) {// idk if iv'e tested this yet, could be worth testing
+    private String randomListItem(List<String> list) {// idk if iv'e tested this yet, could be worth testing
 
         // Creating a object for Random class
-        Random r = new Random();
+        Random rand = new Random();
 
-        // Start from the last element and swap one by one. We don't
-        // need to run for the first element that's why i > 0
-        for (int i = arr.length - 1; i > 0; i--) {
-
-            // Pick a random index from 0 to i
-            int j = r.nextInt(i);
-
-            // Swap arr[i] with the element at random index
-            String temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
+        // return random item and remove from list
+        int index = rand.nextInt(list.size());
+        String randomItem = list.get(index);
+        list.remove(index);
+        return randomItem;
 
     }
 
@@ -492,37 +489,39 @@ public class Learn {
     };
 
     private void createMultipleChoiceQuestion() {
+
         // get 4 random items, one from unfamiliar and the rest random but no duplicates
         if (fullSet != null) {
 
-            String[] options = { "", "", "", "" }; // needed to check for duplicates
+            List<String> options = new ArrayList<String>(Arrays.asList("", "", "", "")); // needed to check for
+                                                                                         // duplicates
 
             String tempTerm;
 
-            options[0] = getDefinition(currentTerm);
+            options.set(0, getDefinition(currentTerm)); // important to use set and not add in order to replace at index
 
-            for (int i = 1; i < options.length; i++) {
+            for (int i = 1; i < options.size(); i++) {
 
                 tempTerm = getRandomDefinition("full");
 
                 // if duplicate, run loop again
-                while (!checkListDuplicate(options, tempTerm)) {
+                while (isTermFound(options, tempTerm)) {
                     tempTerm = getRandomDefinition("full");
                 }
 
-                // once no duplicate, add term
-                options[i] = tempTerm;
+                // once no duplicate, set term
+                options.set(i, tempTerm);
 
             }
 
             // make buttons visible and assign random names
-            randomizeArray(options);
+
             buttonGroup.clearSelection();
 
-            option1.setText(options[0]);
-            option2.setText(options[1]);
-            option3.setText(options[2]);
-            option4.setText(options[3]);
+            option1.setText(randomListItem(options));
+            option2.setText(randomListItem(options));
+            option3.setText(randomListItem(options));
+            option4.setText(randomListItem(options));
 
         } else {
             System.out.println("null set in  Learn:createMutlipleChoiceQuestion");
@@ -553,8 +552,7 @@ public class Learn {
             familiarSet.remove(currentTerm);
             decrementLabel("familiar");
 
-            populateTerm(); // ????, populateTerm already calls createWriteQuestion
-            // createWriteQuestion();
+            populateTerm();
         }
     }
 
@@ -693,7 +691,7 @@ public class Learn {
         springLayout.putConstraint(SpringLayout.NORTH, enterButton, 0, SpringLayout.NORTH, writeText);
 
         // // multiple choice
-        springLayout.putConstraint(SpringLayout.EAST, option1, 0, SpringLayout.HORIZONTAL_CENTER, centerPanel);
+        springLayout.putConstraint(SpringLayout.WEST, option1, 0, SpringLayout.HORIZONTAL_CENTER, centerPanel);
         springLayout.putConstraint(SpringLayout.SOUTH, option1, -20, SpringLayout.NORTH, writeText);
 
         springLayout.putConstraint(SpringLayout.WEST, option2, 0, SpringLayout.WEST, option1);
@@ -719,13 +717,6 @@ public class Learn {
         springLayout.putConstraint(SpringLayout.VERTICAL_CENTER, missedButton, 20,
                 SpringLayout.VERTICAL_CENTER,
                 rightPanel);
-
-        // temp ui layout testing
-
-        // option1.setText("option 1");
-        // option2.setText("option 2");
-        // option3.setText("option 3");
-        // option4.setText("option 4");
 
         // set visible
         learnMain.pack();

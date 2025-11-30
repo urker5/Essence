@@ -9,7 +9,10 @@ public class Set {
 
     public Set() {
         fman = new FileManager();
-        defaultPath = "sets/";
+
+        // this line below is problematic and the whole system needs to be changed
+        // defaultPath = "sets/";
+        // try to set default path to current directory (will be same as .jar or .exe)
         set = null;
     }
 

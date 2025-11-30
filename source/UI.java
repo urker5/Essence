@@ -240,7 +240,11 @@ public class UI implements ActionListener {
     public void openFile() {
         JFileChooser fileChooser = new JFileChooser();
 
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir") + "/sets"));
+        // this needs to change, path system needs to be reworked
+        // fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir") +
+        // "/sets"));
+
+        System.out.println(fileChooser.getCurrentDirectory());
 
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             currentFileName = fileChooser.getSelectedFile().getName();
@@ -262,7 +266,7 @@ public class UI implements ActionListener {
         if (currentFileName != null) {
             currentSet.saveSet(currentFileName);
         } else {
-            // same code as nuwfile but set saving = true for table population
+            // same code as newfile but set saving = true for table population
             openFileDialogBox(true);
 
         }

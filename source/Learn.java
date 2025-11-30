@@ -693,17 +693,17 @@ public class Learn {
         springLayout.putConstraint(SpringLayout.NORTH, enterButton, 0, SpringLayout.NORTH, writeText);
 
         // // multiple choice
-        springLayout.putConstraint(SpringLayout.EAST, option1, 20, SpringLayout.WEST, writeText);
+        springLayout.putConstraint(SpringLayout.EAST, option1, 0, SpringLayout.HORIZONTAL_CENTER, centerPanel);
         springLayout.putConstraint(SpringLayout.SOUTH, option1, -20, SpringLayout.NORTH, writeText);
 
-        springLayout.putConstraint(SpringLayout.WEST, option2, 5, SpringLayout.EAST, option1);
-        springLayout.putConstraint(SpringLayout.NORTH, option2, 0, SpringLayout.NORTH, option1);
+        springLayout.putConstraint(SpringLayout.WEST, option2, 0, SpringLayout.WEST, option1);
+        springLayout.putConstraint(SpringLayout.NORTH, option2, 20, SpringLayout.NORTH, option1);
 
-        springLayout.putConstraint(SpringLayout.WEST, option3, 5, SpringLayout.EAST, option2);
-        springLayout.putConstraint(SpringLayout.NORTH, option3, 0, SpringLayout.NORTH, option2);
+        springLayout.putConstraint(SpringLayout.WEST, option3, 0, SpringLayout.WEST, option2);
+        springLayout.putConstraint(SpringLayout.NORTH, option3, 20, SpringLayout.NORTH, option2);
 
-        springLayout.putConstraint(SpringLayout.WEST, option4, 5, SpringLayout.EAST, option3);
-        springLayout.putConstraint(SpringLayout.NORTH, option4, 0, SpringLayout.NORTH, option3);
+        springLayout.putConstraint(SpringLayout.WEST, option4, 0, SpringLayout.WEST, option3);
+        springLayout.putConstraint(SpringLayout.NORTH, option4, 20, SpringLayout.NORTH, option3);
 
         // right panel
         springLayout.putConstraint(SpringLayout.HORIZONTAL_CENTER, restartButton, 0,

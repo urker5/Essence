@@ -345,12 +345,12 @@ public class UI implements ActionListener {
         learnItem.addActionListener(e -> openLearn());
         writeItem.addActionListener(e -> openWrite());
 
-        // file keyboard shortcuts
+        // file keyboard shortcuts (new, open, save)
         newFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         loadFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         saveFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 
-        // module keyboard shortcuts
+        // module keyboard shortcuts (flashcards, write, learn)
         flashcardsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         learnItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK));
         writeItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));

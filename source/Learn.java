@@ -189,6 +189,8 @@ public class Learn {
     }
 
     private void restart() {
+        // initializes fullset, unfamiliar set, and labels (unfamiliar, missed, etc),
+        // updates UI text labels to initial
 
         if (!currentSet.isNull()) {
 
@@ -228,6 +230,9 @@ public class Learn {
     }
 
     private void populateTerm() {
+        // gets the current term and definition from the appropriate set (unfamiliar or
+        // familiar) and creates either a write or multiple choice question. If both
+        // sets are empty, no current term or definition
 
         if (!unfamiliarSet.isEmpty()) {
             currentTerm = getRandomTerm("unfamiliar");
@@ -264,7 +269,7 @@ public class Learn {
         return 0;
     }
 
-    private String getRandomTerm(String setName) {
+    private String getRandomTerm(String setName) { // returns random term from passed in set name
         List<String> keyList;
         Random random;
         int termNumber;
@@ -332,7 +337,8 @@ public class Learn {
         }
     }
 
-    private boolean checkListDuplicate(String[] list, String checkTerm) {
+    private boolean checkListDuplicate(String[] list, String checkTerm) {// looops through parameter list and if
+                                                                         // parameter term is found, returns false
         for (int i = 0; i < list.length; i++) {
             if (list[i].equals(checkTerm)) {
                 return false;
@@ -342,7 +348,7 @@ public class Learn {
         return true;
     }
 
-    private void randomizeArray(String arr[]) {
+    private void randomizeArray(String arr[]) {// idk if iv'e tested this yet, could be worth testing
 
         // Creating a object for Random class
         Random r = new Random();
@@ -366,7 +372,7 @@ public class Learn {
         return answer.equals(currentDefinition);
     }
 
-    private void toggleMultipleChoiceVisibilty() {
+    private void toggleMultipleChoiceVisibilty() {// old version? delete?
 
         if (option1.isVisible()) {
             option1.setVisible(false);
@@ -397,7 +403,7 @@ public class Learn {
         }
     }
 
-    private void toggleWriteVisibility() {
+    private void toggleWriteVisibility() {// unused/old version? delete?
         if (writeText.isVisible()) {
             writeText.setVisible(false);
             enterButton.setVisible(false);
@@ -417,7 +423,8 @@ public class Learn {
         }
     }
 
-    // create actionlistener, routes each buttonclick to action
+    // create actionlistener, routes each buttonclick to action, updates sets and UI
+    // labels
     ActionListener aListen = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
 
@@ -434,7 +441,7 @@ public class Learn {
                 System.out.println("wrong answer: " + e.getActionCommand());
             }
 
-            populateTerm();
+            populateTerm(); // always called, is this right?
 
         }
     };

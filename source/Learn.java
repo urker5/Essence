@@ -227,7 +227,42 @@ public class Learn {
     }
 
     private void restartMissed() {
-        System.out.println("restarting missed");
+
+        if (missed <= 0) { // if no missed terms, clear UI
+            currentTerm = "";
+            currentDefinition = "";
+            writeText.setText("");
+
+            termLabel.setText("No Missed Terms to Study");
+        }
+
+        if (missedSet != null) {
+            // populate familiarSet from missedSet
+            familiarSet.clear();
+
+            familiar = 0;
+
+            for (String term : missedSet.keySet()) {
+
+                familiarSet.put(term, getDefinition(term));
+                familiar++;
+            }
+
+            // update tracking labels and variables
+            missed = 0;
+            correct = 0;
+
+            familiarLabel.setText("Familiar: " + familiar + "   ");
+            missedLabel.setText("   Missed: 0");
+            correctLabel.setText("Correct: 0   ");
+
+            missedSet.clear(); // clear missedSet
+
+            populateTerm(); // should create a write question
+
+        } else {
+            System.out.println("null set in learn:restartMissed()");
+        }
 
     }
 
@@ -243,6 +278,9 @@ public class Learn {
             toggleWriteVisibility(false);
             toggleMultipleChoiceVisibilty(true);
             createMultipleChoiceQuestion();
+
+            termLabel.setText(currentTerm);
+
         } else if (!familiarSet.isEmpty()) {
             currentTerm = getRandomTerm("familiar");
             currentDefinition = getDefinition(currentTerm);
@@ -250,14 +288,18 @@ public class Learn {
             toggleMultipleChoiceVisibilty(false);
             toggleWriteVisibility(true);
             createWriteQuestion();
+
+            termLabel.setText(currentTerm);
+
         } else {
             currentTerm = "";
             currentDefinition = "";
             System.out.println("familiar and unfamiliar set should be empty");
-            // need to trigger something here like "round completed", hide textbox
-        }
 
-        termLabel.setText(currentTerm);
+            // all terms are either correct or missed
+            toggleWriteVisibility(false);
+            termLabel.setText("Round Completed");
+        }
     }
 
     private int numElements() {

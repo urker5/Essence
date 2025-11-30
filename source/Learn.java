@@ -196,6 +196,7 @@ public class Learn {
 
             fullSet = new LinkedHashMap<String, String>();
             unfamiliarSet = new LinkedHashMap<String, String>();
+            missedSet.clear(); // empty missed set
 
             unfamiliar = 0;
 
@@ -226,6 +227,7 @@ public class Learn {
     }
 
     private void restartMissed() {
+        System.out.println("restarting missed");
 
     }
 
@@ -252,6 +254,7 @@ public class Learn {
             currentTerm = "";
             currentDefinition = "";
             System.out.println("familiar and unfamiliar set should be empty");
+            // need to trigger something here like "round completed", hide textbox
         }
 
         termLabel.setText(currentTerm);
@@ -465,7 +468,7 @@ public class Learn {
                     tempTerm = getRandomDefinition("full");
                 }
 
-                // once no dublicate, add term
+                // once no duplicate, add term
                 options[i] = tempTerm;
 
             }
@@ -500,19 +503,29 @@ public class Learn {
                 System.out.println("wroooooong: " + temp);
 
                 incrementLabel("missed");
+
+                missedSet.put(currentTerm, currentDefinition);
+                System.out.println(missedSet.toString());
             }
 
             familiarSet.remove(currentTerm);
             decrementLabel("familiar");
 
-            createWriteQuestion();
+            populateTerm(); // ????, populateTerm already calls createWriteQuestion
+            // createWriteQuestion();
         }
     }
 
     private void createWriteQuestion() {
-        writeText.setText("");
-        writeText.requestFocusInWindow();
+        System.out.println("creating write question");
 
+        if (familiarSet != null) {
+
+            writeText.setText("");
+            writeText.requestFocusInWindow();
+        } else {
+            System.out.println("null set in Learn:createWriteQuestion");
+        }
     }
 
     public void runMain() {

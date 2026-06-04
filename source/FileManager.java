@@ -32,7 +32,8 @@ public class FileManager {
 
                 line = sc.nextLine();
 
-                for (int i = 0; i < line.length(); i++) {
+                for (int i = 0; i < line.length(); i++) { // parses line and assembles term and definition a character
+                                                          // at a time
                     char c = line.charAt(i);
                     if (c != ':' && !useDefinition) {
                         term = term + c;

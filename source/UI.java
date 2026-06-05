@@ -240,11 +240,11 @@ public class UI implements ActionListener {
     public void openFile() {
         JFileChooser fileChooser = new JFileChooser();
 
-        // this needs to change, path system needs to be reworked
-        // fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir") +
-        // "/sets"));
+        // sets file dialog to open in sets folder, path is the same as defaultPath in
+        // Set.java
+        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir") + "/sets/"));
 
-        System.out.println(fileChooser.getCurrentDirectory());
+        // System.out.println(fileChooser.getCurrentDirectory());
 
         if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
             currentFileName = fileChooser.getSelectedFile().getName();

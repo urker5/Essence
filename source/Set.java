@@ -10,12 +10,7 @@ public class Set {
     public Set() {
         fman = new FileManager();
 
-        // this line below is problematic and the whole system needs to be changed
-        // defaultPath = "sets/";
-        // try to set default path to current directory (will be same as .jar or .exe)
-
-        // try this to get local path:
-        defaultPath = System.getProperty("user.dir");
+        defaultPath = System.getProperty("user.dir") + "/sets/"; // grabs current working directory
 
         set = null;
     }
@@ -26,8 +21,6 @@ public class Set {
 
     public void openSet(String filename) {
         String path = defaultPath + filename + ".set";
-
-        System.out.println("Working Directory = " + System.getProperty("user.dir")); // test to find local path
 
         if (fman.fileExists(path)) {
 

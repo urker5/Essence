@@ -1,0 +1,17 @@
+plugins {
+    id "java"
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "Driver"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+}

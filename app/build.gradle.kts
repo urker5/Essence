@@ -9,6 +9,8 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
+
+    id("edu.sc.seis.launch4j") version "4.0.0"
 }
 
 repositories {
@@ -42,4 +44,24 @@ application {
     // Define the main class for the application.
     //mainClass = "org.example.App"
     mainClass = "org.memoro.Driver"
+}
+
+tasks.jar {
+    manifest {
+        attributes(
+            "Main-Class" to "org.memoro.Driver" // Replace with your main class
+        )
+    }
+}
+
+// launch4j {
+//     mainClassName.set("org.memoro.Driver")
+//     outfile.set("MyApp.exe")
+// }
+
+tasks.withType<edu.sc.seis.launch4j.tasks.DefaultLaunch4jTask> {
+    outfile.set("${"Memoro"}.exe")
+    mainClassName.set("org.memoro.Driver")
+    //icon.set("$projectDir/icons/myApp.ico")
+    productName.set("My App")
 }
